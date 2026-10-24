@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sign Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#09080d;--s1:#110f17;--s2:#1a1624;--bd:#2a2338;--tx:#ece8f5;--mu:#8d84a3;--ac:#8b5cf6;--ac2:#a78bfa;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:520px;margin:0 auto;padding:20px 16px 32px}
+header{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-weight:600;font-size:15px}
+header i{width:9px;height:9px;border-radius:50%;background:var(--ac);box-shadow:0 0 12px var(--ac)}
+header span{color:var(--mu);font-weight:400}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:14px;margin:0 0 12px}
+#stage{text-align:center;padding:10px 0}
+#cv{width:100%;max-width:480px;height:auto;image-rendering:pixelated}
+.bar{display:flex;align-items:center;justify-content:space-between;margin-top:10px;color:var(--mu);font-size:13px}
+#wn{color:var(--tx);font-weight:500}
+.sw{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+.sw input{display:none}
+.sw i{width:34px;height:20px;border-radius:20px;background:var(--s2);border:1px solid var(--bd);position:relative;transition:background .15s}
+.sw i::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--mu);transition:transform .15s,background .15s}
+.sw input:checked+i{background:var(--ac);border-color:var(--ac)}
+.sw input:checked+i::after{transform:translateX(14px);background:#fff}
+h2{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin:0 0 10px;font-weight:500}
+#woods{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.wd{padding:0;border:2px solid transparent;border-radius:10px;background:none;cursor:pointer;aspect-ratio:1;overflow:hidden}
+.wd canvas{width:100%;height:100%;display:block;image-rendering:pixelated;border-radius:7px}
+.wd.on{border-color:var(--ac2);box-shadow:0 0 14px rgba(139,92,246,.45)}
+#dyes{display:grid;grid-template-columns:repeat(9,1fr);gap:7px}
+.dy.no{border-radius:9px;background-color:var(--s2);background-size:82%;background-position:center;background-repeat:no-repeat;image-rendering:pixelated}
+.dy{aspect-ratio:1;border-radius:50%;border:2px solid rgba(255,255,255,.14);cursor:pointer;padding:0}
+.dy.on{border-color:#fff;box-shadow:0 0 0 2px var(--ac),0 0 14px rgba(139,92,246,.5)}
+.ln{margin:0 0 8px}
+.ln input{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--s2);color:var(--tx);font:inherit;outline:none}
+.ln input:focus{border-color:var(--ac)}
+.ln small{display:block;color:var(--mu);font-size:11px;margin:3px 0 0 2px}
+.ln small.bad{color:#f87171}
+#pal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+#pal button{aspect-ratio:1;border:1px solid rgba(255,255,255,.12);border-radius:9px;font:600 11px Inter,sans-serif;cursor:pointer}
+.fm{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.fm button,.ghost{background:var(--s2);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:8px 0;font:500 13px Inter,sans-serif;cursor:pointer}
+.fm button:hover,.ghost:hover{border-color:var(--ac)}
+.ghost{padding:6px 12px;color:var(--mu);font-size:12px}
+.hint{color:var(--mu);font-size:12px;margin:10px 0 0}
+.go{width:100%;padding:14px;border:0;border-radius:12px;background:var(--ac);color:#fff;font:600 15px Inter,sans-serif;cursor:pointer;box-shadow:0 0 24px rgba(139,92,246,.35)}
+.go:hover{background:#9d74f8}
+#msg{color:var(--mu);font-size:12px;margin:8px 0 0;min-height:16px;text-align:center}
+#fb{display:none;max-width:100%;margin:8px auto 0;image-rendering:pixelated}
+</style>
+</head>
+<body>
+<main>
+<header><i></i>Sign Generator <span>placa de parede</span></header>
+
+<div class="card">
+<div id="stage"><canvas id="cv"></canvas></div>
+<div class="bar"><span id="wn">Oak</span>
+<label class="sw"><input type="checkbox" id="glow"><i></i>Glow</label></div>
+</div>
+
+<div class="card"><h2>Madeira</h2><div id="woods"></div></div>
+
+<div class="card"><h2>Tinta</h2><div id="dyes"></div>
+<p class="hint">A tinta define a cor do texto sem código §. Sem glow, ela fica 60% mais escura, como no jogo. Na barreira (sem tinta), o glow usa o contorno de cada cor §.</p></div>
+
+<div class="card"><h2>Texto</h2><div id="lines"></div>
+<button class="ghost" id="clr">Limpar</button></div>
+
+<div class="card"><h2>Cores e formatação</h2>
+<div id="pal"></div>
+<div class="fm">
+<button data-c="k" title="Ofuscado">§k</button>
+<button data-c="l" title="Negrito"><b>§l</b></button>
+<button data-c="o" title="Itálico"><i>§o</i></button>
+<button data-c="r" title="Resetar">§r</button>
+</div>
+<p class="hint">Toque em um código para inserir na linha ativa. Padrão Bedrock: sem sublinhado nem riscado.</p>
+</div>
+
+<button class="go" id="dl">Baixar PNG</button>
+<p id="msg"></p>
+<img id="fb" alt="Placa gerada">
+</main>
+
+<script>
+const G={" ":[2,[0,0,0,0,0,0,0,0,0,0]],"!":[2,[0,0,4,4,4,4,4,0,4,0]],"\"":[4,[0,0,20,20,0,0,0,0,0,0]],"#":[6,[0,0,40,40,124,40,124,40,40,0]],"$":[6,[0,0,16,120,4,56,64,60,16,0]],"%":[6,[0,0,68,36,32,16,8,72,68,0]],"&":[6,[0,0,16,40,16,88,52,36,88,0]],"'":[2,[0,0,4,4,0,0,0,0,0,0]],"(":[5,[0,0,48,8,4,4,4,8,48,0]],")":[5,[0,0,12,16,32,32,32,16,12,0]],"*":[5,[0,0,0,0,36,24,36,0,0,0]],"+":[6,[0,0,0,0,16,16,124,16,16,0]],",":[2,[0,0,0,0,0,0,0,4,4,4]],"-":[6,[0,0,0,0,0,0,124,0,0,0]],".":[2,[0,0,0,0,0,0,0,4,4,0]],"/":[6,[0,0,64,32,32,16,8,8,4,0]],"0":[6,[0,0,56,68,100,84,76,68,56,0]],"1":[6,[0,0,16,24,16,16,16,16,124,0]],"2":[6,[0,0,56,68,64,48,8,4,124,0]],"3":[6,[0,0,56,68,64,48,64,68,56,0]],"4":[6,[0,0,96,80,72,68,124,64,64,0]],"5":[6,[0,0,124,4,60,64,64,68,56,0]],"6":[6,[0,0,48,8,4,60,68,68,56,0]],"7":[6,[0,0,124,68,64,32,16,16,16,0]],"8":[6,[0,0,56,68,68,56,68,68,56,0]],"9":[6,[0,0,56,68,68,120,64,32,24,0]],":":[2,[0,0,0,4,4,0,0,4,4,0]],";":[2,[0,0,0,4,4,0,0,4,4,4]],"<":[5,[0,0,32,16,8,4,8,16,32,0]],"=":[6,[0,0,0,0,124,0,0,124,0,0]],">":[5,[0,0,4,8,16,32,16,8,4,0]],"?":[6,[0,0,56,68,64,32,16,0,16,0]],"@":[7,[0,0,120,132,180,180,244,4,248,0]],"A":[6,[0,0,56,68,124,68,68,68,68,0]],"B":[6,[0,0,60,68,60,68,68,68,60,0]],"C":[6,[0,0,56,68,4,4,4,68,56,0]],"D":[6,[0,0,60,68,68,68,68,68,60,0]],"E":[6,[0,0,124,4,28,4,4,4,124,0]],"F":[6,[0,0,124,4,28,4,4,4,4,0]],"G":[6,[0,0,120,4,100,68,68,68,56,0]],"H":[6,[0,0,68,68,124,68,68,68,68,0]],"I":[4,[0,0,28,8,8,8,8,8,28,0]],"J":[6,[0,0,64,64,64,64,64,68,56,0]],"K":[6,[0,0,68,36,28,36,68,68,68,0]],"L":[6,[0,0,4,4,4,4,4,4,124,0]],"M":[6,[0,0,68,108,84,68,68,68,68,0]],"N":[6,[0,0,68,76,84,100,68,68,68,0]],"O":[6,[0,0,56,68,68,68,68,68,56,0]],"P":[6,[0,0,60,68,60,4,4,4,4,0]],"Q":[6,[0,0,56,68,68,68,68,36,88,0]],"R":[6,[0,0,60,68,60,68,68,68,68,0]],"S":[6,[0,0,120,4,56,64,64,68,56,0]],"T":[6,[0,0,124,16,16,16,16,16,16,0]],"U":[6,[0,0,68,68,68,68,68,68,56,0]],"V":[6,[0,0,68,68,68,68,40,40,16,0]],"W":[6,[0,0,68,68,68,68,84,108,68,0]],"X":[6,[0,0,68,40,16,40,68,68,68,0]],"Y":[6,[0,0,68,40,16,16,16,16,16,0]],"Z":[6,[0,0,124,64,32,16,8,4,124,0]],"[":[4,[0,0,28,4,4,4,4,4,28,0]],"\\":[6,[0,0,4,8,8,16,32,32,64,0]],"]":[4,[0,0,28,16,16,16,16,16,28,0]],"^":[6,[0,0,16,40,68,0,0,0,0,0]],"_":[6,[0,0,0,0,0,0,0,0,0,124]],"`":[3,[0,0,8,4,0,0,0,0,0,0]],"a":[6,[0,0,0,0,56,64,120,68,120,0]],"b":[6,[0,0,4,4,52,76,68,68,60,0]],"c":[6,[0,0,0,0,56,68,4,68,56,0]],"d":[6,[0,0,64,64,88,100,68,68,120,0]],"e":[6,[0,0,0,0,56,68,124,4,120,0]],"f":[5,[0,0,48,8,60,8,8,8,8,0]],"g":[6,[0,0,0,0,120,68,68,120,64,60]],"h":[6,[0,0,4,4,52,76,68,68,68,0]],"i":[2,[0,0,4,0,4,4,4,4,4,0]],"j":[6,[0,0,64,0,64,64,64,68,68,56]],"k":[5,[0,0,4,4,36,20,12,20,36,0]],"l":[3,[0,0,4,4,4,4,4,4,8,0]],"m":[6,[0,0,0,0,44,84,84,68,68,0]],"n":[6,[0,0,0,0,60,68,68,68,68,0]],"o":[6,[0,0,0,0,56,68,68,68,56,0]],"p":[6,[0,0,0,0,52,76,68,60,4,4]],"q":[6,[0,0,0,0,88,100,68,120,64,64]],"r":[6,[0,0,0,0,52,76,4,4,4,0]],"s":[6,[0,0,0,0,120,4,56,64,60,0]],"t":[4,[0,0,8,28,8,8,8,8,16,0]],"u":[6,[0,0,0,0,68,68,68,68,120,0]],"v":[6,[0,0,0,0,68,68,68,40,16,0]],"w":[6,[0,0,0,0,68,68,84,84,120,0]],"x":[6,[0,0,0,0,68,40,16,40,68,0]],"y":[6,[0,0,0,0,68,68,68,120,64,60]],"z":[6,[0,0,0,0,124,32,16,8,124,0]],"{":[5,[0,0,48,8,8,4,8,8,48,0]],"|":[2,[0,0,4,4,4,0,4,4,4,0]],"}":[5,[0,0,12,16,16,32,16,16,12,0]],"~":[7,[0,0,152,100,0,0,0,0,0,0]],"¡":[2,[0,0,4,0,4,4,4,4,4,0]],"¥":[6,[0,0,68,40,16,56,16,56,16,0]],"¨":[5,[0,0,40,0,0,0,0,0,0,0]],"¿":[6,[0,0,16,0,16,8,4,68,56,0]],"Ø":[7,[0,0,0,176,72,164,148,72,52,0]],"å":[6,[16,40,16,0,120,68,68,100,88,0]],"æ":[11,[0,0,0,0,1912,2244,1988,228,3928,0]],"ø":[7,[0,0,0,176,72,164,148,72,52,0]],"‘":[3,[0,0,8,4,4,0,0,0,0,0]],"’":[3,[0,0,8,8,4,0,0,0,0,0]],"“":[5,[0,0,40,20,20,0,0,0,0,0]],"”":[5,[0,0,40,40,20,0,0,0,0,0]],"á":[6,[0,32,16,0,56,64,120,68,120,0]],"Á":[6,[32,16,56,68,124,68,68,68,68,0]],"à":[6,[0,8,16,0,56,64,120,68,120,0]],"À":[6,[8,16,56,68,124,68,68,68,68,0]],"â":[6,[0,16,40,0,56,64,120,68,120,0]],"Â":[6,[16,40,56,68,124,68,68,68,68,0]],"ã":[6,[0,48,24,0,56,64,120,68,120,0]],"Ã":[6,[48,24,56,68,124,68,68,68,68,0]],"é":[6,[0,32,16,0,56,68,124,4,120,0]],"É":[6,[32,16,124,4,28,4,4,4,124,0]],"è":[6,[0,8,16,0,56,68,124,4,120,0]],"È":[6,[8,16,124,4,28,4,4,4,124,0]],"ê":[6,[0,16,40,0,56,68,124,4,120,0]],"Ê":[6,[16,40,124,4,28,4,4,4,124,0]],"í":[2,[0,8,4,0,4,4,4,4,4,0]],"Í":[4,[16,8,28,8,8,8,8,8,28,0]],"ì":[2,[0,2,4,0,4,4,4,4,4,0]],"Ì":[4,[4,8,28,8,8,8,8,8,28,0]],"î":[2,[0,4,10,0,4,4,4,4,4,0]],"Î":[4,[8,20,28,8,8,8,8,8,28,0]],"ó":[6,[0,32,16,0,56,68,68,68,56,0]],"Ó":[6,[32,16,56,68,68,68,68,68,56,0]],"ò":[6,[0,8,16,0,56,68,68,68,56,0]],"Ò":[6,[8,16,56,68,68,68,68,68,56,0]],"ô":[6,[0,16,40,0,56,68,68,68,56,0]],"Ô":[6,[16,40,56,68,68,68,68,68,56,0]],"õ":[6,[0,48,24,0,56,68,68,68,56,0]],"Õ":[6,[48,24,56,68,68,68,68,68,56,0]],"ú":[6,[0,32,16,0,68,68,68,68,120,0]],"Ú":[6,[32,16,68,68,68,68,68,68,56,0]],"ù":[6,[0,8,16,0,68,68,68,68,120,0]],"Ù":[6,[8,16,68,68,68,68,68,68,56,0]],"û":[6,[0,16,40,0,68,68,68,68,120,0]],"Û":[6,[16,40,68,68,68,68,68,68,56,0]],"ñ":[6,[0,48,24,0,60,68,68,68,68,0]],"Ñ":[6,[48,24,68,76,84,100,68,68,68,0]],"ç":[6,[0,0,0,0,56,68,4,68,56,16]],"Ç":[6,[0,0,56,68,4,4,4,68,56,16]],"—":[6,[0,0,0,0,0,0,124,0,0,0]],"–":[6,[0,0,0,0,0,0,124,0,0,0]],"…":[6,[0,0,0,0,0,0,0,84,84,0]],"•":[5,[0,0,0,0,36,24,36,0,0,0]]},TX={"acacia": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAFVBMVEW6YzetXTLCbT+ZUCugVjCPTCqIRyjihK2qAAAAbUlEQVR42jWOAQpFMQzC4qvd/Y/8SeEP0AJLEMLn45IBkmmuoeVO0rYJDLM7s+/tPvPBV2GDpBBI0zkAQhuSnF0T0jpsDzj2P4STAH5W1eHcN8JGx+2w1uI7C+6IHhKoNEASdcYo9vEkd/Tcmh85EgKL0CkO5QAAAABJRU5ErkJggg==", "bamboo": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAHlBMVEXIsU3v2X7jzGrZwl7Tu1DCtU63q0m7qEyZh0GQfjqTJZMXAAAAcklEQVR42iWOUQ5EIQjEugig97/wvgbiyPy0ge6q7ii3jXMiIn8RXzEkZHac/AbnvXvfm/v9rsfMgIHpYIgjvFEFyeJVqOJKruHaWHIYWN+SmtYDJalBEcmVXMkoYhCtgg4b0jp0eY6YMKXL+vYE32j6A0N5BG3DgzDZAAAAAElFTkSuQmCC", "birch": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAFVBMVEXXwYXIt3rXy42un3a4qHWllGeei2EZUifUAAAAa0lEQVR42gXBgWEDQRCEMGAn6b/iP0sgVVEVB+hNQGFDQNw2hbvb6U6su4JWtQodCM7dFEA2UQ/QbQv5kuPBl1BoVRUDAdzm3I7QbVPd2P1dUF6cnTQKVi0Khc0NRMVN3IHbNv8f8j7IJ/ADtkAIp9Gc1EQAAAAASUVORK5CYII=", "cherry": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAFVBMVEXnwrvnurTnysXhqKHms63dnZfNhYAgudpKAAAAa0lEQVR42gXBgWEDQRCEMGAn6b/iP0sgVVEVB+hNQGFDQNw2hbvb6U6su4JWtQodCM7dFEA2UQ/QbQv5kuPBl1BoVRUDAdzm3I7QbVPd2P1dUF6cnTQKVi0Khc0NRMVN3IHbNv8f8j7IJ/ADtkAIp9Gc1EQAAAAASUVORK5CYII=", "crimson": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAFVBMVEV+OlZqNEuGPlpLJzdcMEJEITE/Hi1LXkyjAAAAa0lEQVR42gXBgWEDQRCEMGAn6b/iP0sgVVEVB+hNQGFDQNw2hbvb6U6su4JWtQodCM7dFEA2UQ/QbQv5kuPBl1BoVRUDAdzm3I7QbVPd2P1dUF6cnTQKVi0Khc0NRMVN3IHbNv8f8j7IJ/ADtkAIp9Gc1EQAAAAASUVORK5CYII=", "dark-oak": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAFVBMVEVTOBpPMhhJLxc+KRI6JBEwHg4pGgyUw7h6AAAAXklEQVR4AQXBgXEDQBADIfbe4/4bjhXQBQJ9Sm4bmdONVph5fTJlWpY8eOju1U2tNkM9W9wfib5mhbES3QH0qqFYSylhyO/62hRbghf18ERnzvLTostW/SnoO9mohX8Kiyxu9qz51AAAAABJRU5ErkJggg==", "jungle": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAFVBMVEW/jmu4h2SqeVSfcUqXakR4VDdoRi9pw/u1AAAAXklEQVR4AQXBgXEDQBADIfbe4/4bjhXQBQJ9Sm4bmdONVph5fTJlWpY8eOju1U2tNkM9W9wfib5mhbES3QH0qqFYSylhyO/62hRbghf18ERnzvLTostW/SnoO9mohX8Kiyxu9qz51AAAAABJRU5ErkJggg==", "mangrove": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAFVBMVEWLTTp/QjR3OTR1MTZvKi1kJCNdHB5hJCK6AAAAXklEQVR4AQXBgRECQBADIfbesf+KjfA6INCn5LaROd1ohZn3uUyZliUPHrp7dVOrzdCnNtaPRF+zwliJ7gB61VCspZQw5Hd9bYotwYt6eKIzZ/lp8SpTP0X1nWzUwh+TGix27sJpLAAAAABJRU5ErkJggg==", "oak": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAFVBMVEXCnWK4lF+vj1WfhE2WdEF+YjdnUCyo+21oAAAAXklEQVR4AQXBgXEDQBADIfbe4/4bjhXQBQJ9Sm4bmdONVph5fTJlWpY8eOju1U2tNkM9W9wfib5mhbES3QH0qqFYSylhyO/62hRbghf18ERnzvLTostW/SnoO9mohX8Kiyxu9qz51AAAAABJRU5ErkJggg==", "pale-oak": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAFVBMVEX67+7n4+Hdzs3AsrLHuLjSxsf/+/g9AHCVAAAAaUlEQVR42gXBgRHAMAyEMKCX339jVwLZtrFt4wH6ElAoBMQqhec75A45Dw/WtrUNDQSzlwJIifoArb6sT6++SmBDt23bCASwMusxtEq1yA/lDvQ4YLFB2xobCmWBqFhiD6zq+9KKL0P9AbiHDNWkCjANAAAAAElFTkSuQmCC", "poplar": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAFVBMVEWnm4yckIaRhXt2ZmV+b2yHeXSqoZEExjkgAAAAaUlEQVR42gXBgQHDMBCEMCD17b/xVwLZtrFt4wH6ElAoBMQqhec75A45Dw/WtrUNDQSzlwJIifoArfwQ7wDBO9jQbds2AgGszHoMrVIt8kO5Az0OWGzQtsaGQlkgKpbYA6uq6vs+3q9U/1JiD8ZtVEoqAAAAAElFTkSuQmCC", "spruce": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAFVBMVEWIZTmCYTp6WjRwUi5hSy5aRCRVOh/7MrZ8AAAAXklEQVR4AQXBgXEDQBADIfbe4/4bjhXQBQJ9Sm4bmdONVph5fTJlWpY8eOju1U2tNkM9W9wfib5mhbES3QH0qqFYSylhyO/62hRbghf18ERnzvLTostW/SnoO9mohX8Kiyxu9qz51AAAAABJRU5ErkJggg==", "warped": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAFVBMVEU6jow5g4IocGcuX1EfV1IeQ0ARODVV1y7AAAAAXklEQVR4AQXBgXEDQBADIfbe4/4bjhXQBQJ9Sm4bmdONVph5fTJlWpY8eOju1U2tNkM9W9wfib5mhbES3QH0qqFYSylhyO/62hRbghf18ERnzvLTostW/SnoO9mohX8Kiyxu9qz51AAAAABJRU5ErkJggg=="};
+const NM={oak:'Oak',spruce:'Spruce',birch:'Birch',jungle:'Jungle',acacia:'Acacia','dark-oak':'Dark Oak',mangrove:'Mangrove',cherry:'Cherry','pale-oak':'Pale Oak',bamboo:'Bamboo',crimson:'Crimson',warped:'Warped',poplar:'Poplar'};
+const C={0:'#000000',1:'#0000AA',2:'#00AA00',3:'#00AAAA',4:'#AA0000',5:'#AA00AA',6:'#FFAA00',7:'#AAAAAA',8:'#555555',9:'#5555FF',a:'#55FF55',b:'#55FFFF',c:'#FF5555',d:'#FF55FF',e:'#FFFF55',f:'#FFFFFF',g:'#DDD605',h:'#E3D4D1',i:'#CECACA',j:'#443A3B',m:'#971607',n:'#B4684D',p:'#DEB12D',q:'#47A036',s:'#2CBAA8',t:'#21497B',u:'#9A5CC6',v:'#EB7114'};
+const ocf=r=>{if(dye!=='none')return OC;const c=r.c||'#000000';return c==='#000000'?'#F0EBCC':shade(c,.4)};
+const NAMES={0:'Preto',1:'Azul escuro',2:'Verde escuro',3:'Ciano escuro',4:'Vermelho escuro',5:'Roxo',6:'Dourado',7:'Cinza',8:'Cinza escuro',9:'Azul',a:'Verde',b:'Ciano',c:'Vermelho',d:'Rosa',e:'Amarelo',f:'Branco',g:'Minecoin',h:'Quartzo',i:'Ferro',j:'Netherite',m:'Redstone',n:'Cobre',p:'Ouro',q:'Esmeralda',s:'Diamante',t:'Lápis-lazúli',u:'Ametista',v:'Resina'};
+const S=8,W=24*4*S,H=12*4*S,OFF=2;
+const $=id=>document.getElementById(id);
+const cv=$('cv'),g=cv.getContext('2d');
+const BARRIER="iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAoElEQVR42mNgoBAwInPOZef+J0aT0dTJjBiC57Jz/z9mYCAKnxeX/Y9T8yEGBpyuuG5uCVe3EaqOCVnBfQYGBjs0byFr5jl5nOENmjiKAcRoNkRTw0QowPBpJmgAIc14DSBGM04DiNWM1QBSNGMYQIzmy4Eh/3EaQIxmgfVrsOeF8+Ky/0VePiYqA51jYGDwh+pFsWkjnmSMDPyJCBuiAQChsmSz7BYEiAAAAABJRU5ErkJggg==";
+const DY={none:['Sem tinta','#000000'],white:['Branco','#FFFFFF'],lightgray:['Cinza claro','#D3D3D3'],gray:['Cinza','#808080'],black:['Preto','#000000'],brown:['Marrom','#8B4513'],red:['Vermelho','#FF0000'],orange:['Laranja','#FF681F'],yellow:['Amarelo','#FFFF00'],lime:['Lima','#BFFF00'],green:['Verde','#00FF00'],cyan:['Ciano','#00FFFF'],lightblue:['Azul claro','#9AC0CD'],blue:['Azul','#0000FF'],purple:['Roxo','#A020F0'],magenta:['Magenta','#FF00FF'],pink:['Rosa','#FF69B4']};
+let wood='oak',dye='none',last=null,hasK=false,OC='#F0EBCC';const IM={},BD={};
+
+function lab(){$('wn').textContent=NM[wood]+' · '+DY[dye][0]}
+function msg(s){$('msg').textContent=s}
+window.addEventListener('error',e=>msg('Erro: '+e.message));
+
+function parse(s){const out=[];let st={c:null,b:0,i:0,k:0},buf='';
+const push=()=>{if(buf){out.push({t:buf,...st});buf=''}};
+for(let n=0;n<s.length;n++){const ch=s[n];
+if(ch==='§'&&n+1<s.length){const k=s[++n].toLowerCase();push();
+if(C[k])st={...st,c:C[k]};else if(k==='l')st={...st,b:1};else if(k==='o')st={...st,i:1};else if(k==='k')st={...st,k:1};else if(k==='r')st={c:null,b:0,i:0,k:0}}
+else buf+=ch}
+push();return out}
+const POOL='!#$%&*+0123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghkmnpqrstuvwxyz?@';
+function obf(t){let o='';for(const ch of t)o+=ch===' '?' ':POOL[Math.floor(Math.random()*POOL.length)];return o}
+function shade(hex,f){const n=parseInt(hex.slice(1),16);return'rgb('+Math.round((n>>16&255)*f)+','+Math.round((n>>8&255)*f)+','+Math.round((n&255)*f)+')'}
+const gl=ch=>G[ch]||G['?'];
+function tw(r){let w=0;for(const ch of r.t)w+=gl(ch)[0]+(r.b?1:0);return w*S}
+function drawText(r,x,y,col){g.fillStyle=col;
+for(const ch of r.t){const a=gl(ch),adv=a[0],rows=a[1];
+for(let ri=0;ri<rows.length;ri++){const m=rows[ri];if(!m)continue;const lev=8-ri,sh=r.i?Math.floor((lev+2)/4)*S:0;
+for(let q=0;q<16;q++)if(m>>q&1){const px=x+(q-OFF)*S+sh,py=y-(lev+1)*S;g.fillRect(px,py,S,S);if(r.b)g.fillRect(px+S,py,S,S)}}
+x+=(adv+(r.b?1:0))*S}}
+
+function render(){
+const glow=$('glow').checked,dh=DY[dye][1];OC=dye==='black'?'#F0EBCC':shade(dh,.4);
+cv.width=W;cv.height=H;g.imageSmoothingEnabled=false;
+if(BD[wood])g.drawImage(BD[wood],0,0,W,H);else{g.fillStyle='#a2824a';g.fillRect(0,0,W,H)}
+hasK=false;
+document.querySelectorAll('.ln input').forEach((inp,i)=>{
+const runs=parse(inp.value).map(r=>{if(r.k)hasK=true;return{...r,t:r.k?obf(r.t):r.t}});
+let w=0;runs.forEach(r=>{r.w=tw(r);w+=r.w});
+const px=Math.round(w/S),info=inp.parentNode.querySelector('small');
+info.textContent=px+' / 90 px'+(px>90?' · passa do limite do jogo':'');info.className=px>90?'bad':'';
+const x0=Math.round((W-w)/2/S)*S,y=4*S+i*10*S+7*S;
+if(glow){let x=x0;runs.forEach(r=>{
+for(let a=-1;a<2;a++)for(let b=-1;b<2;b++)if(a||b)drawText(r,x+a*S,y+b*S,ocf(r));x+=r.w})}
+let x=x0;runs.forEach(r=>{drawText(r,x,y,r.c||(glow?dh:shade(dh,.4)));x+=r.w})})}
+
+function ins(code){const el=last||document.querySelector('.ln input');const a=el.selectionStart??el.value.length,b=el.selectionEnd??a;
+el.value=el.value.slice(0,a)+code+el.value.slice(b);const p=a+code.length;el.focus();el.setSelectionRange(p,p);render()}
+function fallback(){$('fb').src=cv.toDataURL('image/png');$('fb').style.display='block'}
+
+try{
+const ex=['§5§lMinecraft','§dSign Generator','§7Placa de parede','§s§lGlow neon'];
+for(let i=0;i<4;i++){const d=document.createElement('div');d.className='ln';
+d.innerHTML='<input type="text" maxlength="120" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Linha '+(i+1)+'" placeholder="Linha '+(i+1)+'"><small>0 / 90 px</small>';
+const inp=d.firstChild;inp.value=ex[i];inp.addEventListener('input',render);inp.addEventListener('focus',()=>last=inp);$('lines').appendChild(d)}
+last=document.querySelector('.ln input');
+
+for(const k in NM){const b=document.createElement('button');b.className='wd'+(k===wood?' on':'');b.type='button';b.title=NM[k];b.setAttribute('aria-label',NM[k]);
+const c=document.createElement('canvas');c.width=16;c.height=16;b.appendChild(c);
+const im=new Image();IM[k]=im;
+im.onload=()=>{c.getContext('2d').drawImage(im,0,0);const bc=document.createElement('canvas');bc.width=24;bc.height=12;const x=bc.getContext('2d');x.drawImage(im,0,0);x.drawImage(im,16,0);BD[k]=bc;if(k===wood)render()};
+im.src='data:image/png;base64,'+TX[k];
+b.onclick=()=>{wood=k;lab();document.querySelectorAll('.wd').forEach(x=>x.classList.remove('on'));b.classList.add('on');render()};$('woods').appendChild(b)}
+
+for(const k in C){const b=document.createElement('button');b.type='button';b.textContent='§'+k;b.title=NAMES[k]+' (§'+k+')';
+const n=parseInt(C[k].slice(1),16),lum=((n>>16&255)*.299+(n>>8&255)*.587+(n&255)*.114);
+b.style.background=C[k];b.style.color=lum>140?'#000':'#fff';
+b.onpointerdown=e=>e.preventDefault();b.onclick=()=>ins('§'+k);$('pal').appendChild(b)}
+document.querySelectorAll('.fm button').forEach(b=>{b.onpointerdown=e=>e.preventDefault();b.onclick=()=>ins('§'+b.dataset.c)});
+for(const k in DY){const b=document.createElement('button');b.type='button';b.className='dy'+(k===dye?' on':'');b.title=DY[k][0];b.setAttribute('aria-label',DY[k][0]);if(k==='none'){b.classList.add('no');b.style.backgroundImage='url(data:image/png;base64,'+BARRIER+')'}else b.style.background=DY[k][1];b.onclick=()=>{dye=k;document.querySelectorAll('.dy').forEach(x=>x.classList.remove('on'));b.classList.add('on');lab();render()};$('dyes').appendChild(b)}
+$('glow').onchange=render;
+$('clr').onclick=()=>{document.querySelectorAll('.ln input').forEach(i=>i.value='');render()};
+$('dl').onclick=()=>{cv.toBlob(async b=>{
+const CH='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';let rid='';for(let i=0;i<4;i++)rid+=CH[Math.floor(Math.random()*CH.length)];
+const name='sign-'+wood+'-'+rid+'.png';let d=null;
+try{d=window.claude?await window.claude.use('downloads'):null}catch(e){}
+if(d){try{await d.save({filename:name,data:b});msg('Imagem salva.')}
+catch(e){if(e&&e.code==='declined')msg('Download cancelado.');else{fallback();msg('Não foi possível baixar direto. Toque e segure na imagem abaixo.')}}return}
+if(window.claude){fallback();msg('Toque e segure na imagem abaixo para salvar.');return}
+const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();a.remove();msg('Imagem baixada.')
+},'image/png')};
+lab();render();setInterval(()=>{if(hasK)render()},140);
+}catch(e){msg('Erro ao iniciar: '+e.message)}
+
+</script>
+</body>
+</html>
